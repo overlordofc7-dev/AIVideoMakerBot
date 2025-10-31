@@ -316,7 +316,7 @@ async def admin_broadcast_receive(update: Update, context: ContextTypes.DEFAULT_
     await update.message.reply_text(f"This will be sent to *{len(db_manager.get_all_user_ids())}* users. Confirm?", reply_markup=keyboard, parse_mode='Markdown')
     return ConversationHandler.END
 
-async def admin_broadcast_send(update: Update, context: ContextTypes.DEFAULT_T) -> None:
+async def admin_broadcast_send(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer("Starting broadcast..."); await query.edit_message_text("⏳ Broadcasting...")
     sent, failed = 0, 0
@@ -328,7 +328,6 @@ async def admin_broadcast_send(update: Update, context: ContextTypes.DEFAULT_T) 
     report = f"✅ *Broadcast Complete!*\n\n*Sent:* `{sent}`\n*Failed:* `{failed}` (users blocked the bot)"
     await context.bot.send_message(chat_id=query.from_user.id, text=report, parse_mode='Markdown')
     await show_main_menu(query, context)
-
 # --- 🚀 MAIN FUNCTION ---
 def main() -> None:
     application = Application.builder().token(BOT_TOKEN).build()
