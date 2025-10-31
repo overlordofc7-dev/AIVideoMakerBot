@@ -25,11 +25,12 @@ from telegram.ext import (
 )
 from telegram.error import Forbidden, BadRequest
 
-# --- ⚙️ CONFIGURATION ---
-# Replace these values with your actual bot details
-BOT_TOKEN = "8486443424:AAFSc_YulKzEeGpTzYNiaSLGFlCFTK-PXew"  # Get from @BotFather
-ADMIN_IDS = [7407431042]  # List of your numeric Telegram User IDs
-CHANNEL_ID = "@HackDroidZone"  # Your channel's username (e.g., @MyAwesomeChannel)
+# --- ⚙️ CONFIGURATION (Loaded from Render Environment Variables) ---
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+ADMIN_IDS_STR = os.environ.get("ADMIN_IDS", "").split(',')
+ADMIN_IDS = [int(admin_id) for admin_id in ADMIN_IDS_STR if admin_id]
+CHANNEL_ID = os.environ.get("CHANNEL_ID")
+
 
 # API and Bot Settings
 VIDEO_API_URL = "https://texttovideov2.alphaapi.workers.dev/api/"
@@ -182,7 +183,6 @@ async def send_admin_notification(user, context: ContextTypes.DEFAULT_TYPE):
 
 # --- 🏛️ MAIN MENU ---
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # NEW: 2x2 grid layout
     keyboard = [
         ["🎬 Generate Video", "👤 My Account"],
         ["🎁 Get Credits", "❓ Guide & Help"]
@@ -328,8 +328,10 @@ async def admin_broadcast_send(update: Update, context: ContextTypes.DEFAULT_TYP
     report = f"✅ *Broadcast Complete!*\n\n*Sent:* `{sent}`\n*Failed:* `{failed}` (users blocked the bot)"
     await context.bot.send_message(chat_id=query.from_user.id, text=report, parse_mode='Markdown')
     await show_main_menu(query, context)
+
 # --- 🚀 MAIN FUNCTION ---
 def main() -> None:
+    """Start the bot."""
     application = Application.builder().token(BOT_TOKEN).build()
     
     video_conv = ConversationHandler(entry_points=[MessageHandler(filters.Regex("^🎬 Generate Video$"), generate_video_command)], states={PROMPT_INPUT: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_prompt)]}, fallbacks=[CommandHandler("cancel", cancel)])
@@ -348,6 +350,7 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(admin_broadcast_send, pattern='^broadcast_confirm$'))
     
     application.run_polling()
+
 
 if __name__ == "__main__":
     main()
