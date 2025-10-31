@@ -101,7 +101,7 @@ class UserDataManager:
             self.update_credits(user_id, DAILY_BONUS); self._save_data()
             return True
         return False
-        
+
     def set_referrer(self, user_id, referrer_id):
         user_id_str = str(user_id)
         if user_id_str in self.users_data and self.users_data[user_id_str].get("referred_by") is None:
