@@ -115,7 +115,8 @@ db_manager = UserDataManager(DB_FILE)
 async def is_user_member_of_channel(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> bool:
     try:
         member = await context.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
-        return member.status in [ChatMember.MEMBER, ChatMember.ADMINISTRATOR, ChatMember.CREATOR]
+        # 🟢 ***FIXED LINE HERE*** 🟢
+        return member.status in [ChatMember.MEMBER, ChatMember.ADMINISTRATOR, ChatMember.OWNER]
     except Exception as e:
         logger.error(f"Error checking membership for {user_id}: {e}")
         return False
