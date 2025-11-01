@@ -115,7 +115,7 @@ db_manager = UserDataManager(DB_FILE)
 async def is_user_member_of_channel(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> bool:
     try:
         member = await context.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
-        # 🟢 ***FIXED LINE HERE*** 🟢
+        # 🟢 ***FIX #1: Changed CREATOR to OWNER*** 🟢
         return member.status in [ChatMember.MEMBER, ChatMember.ADMINISTRATOR, ChatMember.OWNER]
     except Exception as e:
         logger.error(f"Error checking membership for {user_id}: {e}")
@@ -138,13 +138,27 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             )
         await show_main_menu(update, context)
     else:
+        # 🟢 ***FIX #2 and #3: New button URL and aesthetic message*** 🟢
+        channel_username = CHANNEL_ID.lstrip('@')
+        deep_link_url = f"tg://resolve?domain={channel_username}"
+        
         keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("➡️ Join Channel", url=f"https://t.me/{CHANNEL_ID.lstrip('@')}")],
-            [InlineKeyboardButton("✅ Verify Membership", callback_data=f"check_join_{referrer_id}")]
+            [InlineKeyboardButton("1️⃣ Join Official Channel", url=deep_link_url)],
+            [InlineKeyboardButton("2️⃣ ✅ Verify Membership", callback_data=f"check_join_{referrer_id}")]
         ])
+
+        start_message = (
+            "🎬✨ *Welcome to VisionCraft Elite!* ✨🎬\n\n"
+            "I am a powerful AI that can turn your words into incredible videos.\n\n"
+            "*To unlock my full potential, you must complete one simple step:*\n\n"
+            "1. Press the *'Join Official Channel'* button below.\n"
+            "2. Come back here and press *'Verify Membership'*."
+        )
+        
         await update.message.reply_text(
-            "🔒 *ACCESS DENIED*\n\nWelcome! To unlock my creative powers, please join our official channel. This is a one-time step.",
-            reply_markup=keyboard, parse_mode='Markdown'
+            text=start_message,
+            reply_markup=keyboard,
+            parse_mode='Markdown'
         )
 
 async def check_join_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
